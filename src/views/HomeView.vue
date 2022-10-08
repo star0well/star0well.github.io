@@ -1,7 +1,11 @@
 <template>
-  <div class="opration">
-    <div @click="hanldeClick">旋转</div>
-    <div @click="hanldeStop">停止</div>
+  <div class="nav">
+    <div>风机运行情况监测</div>
+    <div class="opration">
+      <input v-model.number="speed" placeholder="输入当前风速 m/s" />
+      <div @click="hanldeClick">测试</div>
+      <div @click="hanldeStop">停止</div>
+    </div>
   </div>
   <div
     class="detail"
@@ -11,13 +15,19 @@
       {{ position.name }}
     </div>
   </div>
-  <ThreeDemo @focus="hanldeShow" :rotation="rotation" @onClick="handleDetail"></ThreeDemo>
+  <ThreeDemo
+    @focus="hanldeShow"
+    :rotation="rotation"
+    @onClick="handleDetail"
+    :speed="speed"
+  ></ThreeDemo>
 </template>
 <script setup>
 import ThreeDemo from "@/components/three/three-demo.vue";
 import {ref} from "vue";
 const currentItem = ref({});
 const position = ref({});
+const speed = ref(null);
 const hanldeShow = (e) => {
   if (!e) {
     position.value = {opacity: 0};
@@ -49,10 +59,16 @@ const hanldeStop = () => {
   line-height: 50px;
   transform: translate(-50%, -50%);
 }
+.nav {
+  position: fixed;
+  text-align: center;
+  width: 300px;
+}
 .opration {
   position: fixed;
   top: 20px;
   left: 50px;
   display: flex;
+  color: #fff;
 }
 </style>

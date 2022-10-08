@@ -10,7 +10,7 @@ export const useThree = (element) => {
     width: window.innerWidth,
     height: window.innerHeight
   };
-  const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     antialias: true
