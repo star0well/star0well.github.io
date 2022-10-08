@@ -72,7 +72,7 @@ const init = () => {
   //纹理
 
   const colorTexture = textureLoader.load("model/texture1.png");
-  const colorTexture2 = textureLoader.load("model/texture2.JPG");
+  const colorTexture2 = textureLoader.load("model/texture2.jpg");
 
   const tatongMaterial = new THREE.MeshBasicMaterial({map: colorTexture});
   const jiahcangMaterial = new THREE.MeshBasicMaterial({map: colorTexture2});
