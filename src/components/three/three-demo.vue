@@ -19,6 +19,10 @@ const props = defineProps({
   speed: {
     type: Number,
     default: 0
+  },
+  rotationDir: {
+    type: Number,
+    default: 0
   }
 });
 onMounted(() => {
@@ -41,24 +45,37 @@ const init = () => {
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
-  let rotateMesh, rotateMeshList, rotateZ;
+  let rotateMesh, rotateMeshList;
   let timer = 0;
   watch(
     () => props.rotation,
     (newValue) => {
       if (!newValue || timer == 1) return;
       timer = 1;
+      const jichang = scene.children[2].children.find((item) => item.name.indexOf("机舱") != -1);
+      const zhaoke = scene.children[2].children.find((item) => item.name.indexOf("罩壳") != -1);
+      const positionCenter = jichang.position.clone();
+      const axisArray = Object.values(positionCenter);
       rotateMeshList = scene.children[2].children.filter((item) => item.name.indexOf("扇叶") != -1);
       rotateMeshList.forEach((item) => {
+        item.position.set(
+          item.position.x - axisArray[0],
+          item.position.y - axisArray[1],
+          item.position.z - axisArray[2]
+        );
         group.add(item);
       });
-      group.add(scene.children[2].children.find((item) => item.name.indexOf("机舱") != -1));
-      group.add(scene.children[2].children.find((item) => item.name.indexOf("罩壳") != -1));
+      group.add(jichang);
+      group.add(zhaoke);
       group.name = "旋转";
-      // group.position.set(7.13713, 26.6228, -11.1367);
-      // group.position.set(7.13713, 0, -11.1367);
-      // const axis = new THREE.AxesHelper(100);
-      // group.add(axis);
+      jichang.position.set(0, 0, 0);
+      zhaoke.position.set(
+        zhaoke.position.x - axisArray[0],
+        zhaoke.position.y - axisArray[1],
+        zhaoke.position.z - axisArray[2]
+      );
+
+      group.position.set(axisArray[0], axisArray[1], axisArray[2]);
       scene.add(group);
     }
   );
@@ -102,7 +119,6 @@ const init = () => {
         }
         if (item.name == "机舱") {
           item.material = jiahcangMaterial;
-          rotateZ = item;
         }
         if (item.name == "罩壳") {
           item.material = new THREE.MeshBasicMaterial({color: 0xdab2a2});
@@ -167,10 +183,9 @@ const init = () => {
    */
 
   const rotateAction = () => {
-    console.log("rotateZ", rotateZ);
     const pix = props.speed / 13;
     const lastSpeed = pix * 5;
-    console.log("pix", pix);
+
     rotateMesh.rotateX(degToRad(lastSpeed));
     rotateMeshList.forEach((item) => {
       item.rotateX(degToRad(lastSpeed));
@@ -180,7 +195,7 @@ const init = () => {
     // group.rotation.y += 0.01;
     // const axios = new THREE.Vector3(7.13713, 26.6228, -11.1367);
     // group.rotateOnAxis(axios, Math.PI / 100);
-    if (pix > 1) group.rotateY(degToRad(1));
+    // group.rotateY(degToRad(props.rotationDir));
   };
   const tick = () => {
     // Update controls
@@ -195,6 +210,9 @@ const init = () => {
       hanldeRaycaster(intersects);
     }
     props.rotation && rotateAction();
+
+    group.rotation.y = Math.PI * props.rotationDir;
+
     // Render
     renderer.render(scene, camera);
     // Call tick again on the next frame

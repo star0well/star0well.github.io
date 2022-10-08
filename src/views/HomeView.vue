@@ -5,6 +5,8 @@
       <input v-model.number="speed" placeholder="输入当前风速 m/s" />
       <div @click="hanldeClick">测试</div>
       <div @click="hanldeStop">停止</div>
+      <div @click="rotationLeft">机舱左转</div>
+      <div @click="rotationRight">机场右转</div>
     </div>
   </div>
   <div
@@ -20,6 +22,7 @@
     :rotation="rotation"
     @onClick="handleDetail"
     :speed="speed"
+    :rotationDir="rotationDir"
   ></ThreeDemo>
 </template>
 <script setup>
@@ -47,6 +50,14 @@ const hanldeClick = () => {
 const hanldeStop = () => {
   rotation.value = false;
 };
+
+const rotationDir = ref(0);
+const rotationLeft = () => {
+  rotationDir.value += 0.1;
+};
+const rotationRight = () => {
+  rotationDir.value -= 0.1;
+};
 </script>
 <style scoped lang="scss">
 .detail {
@@ -70,5 +81,8 @@ const hanldeStop = () => {
   left: 50px;
   display: flex;
   color: #fff;
+  > div {
+    margin: 0 20px;
+  }
 }
 </style>
