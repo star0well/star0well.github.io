@@ -3,4 +3,12 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import "@/assets/css/index.css";
-createApp(App).use(store).use(router).mount("#app");
+import registerAntdv from "@/global/index";
+import {menuMapToRoutes} from "@/utils/map-menu";
+const app = createApp(App);
+registerAntdv(app);
+const routes = menuMapToRoutes();
+routes.forEach((route) => {
+  router.addRoute("main", route);
+});
+app.use(store).use(router).mount("#app");

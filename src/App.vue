@@ -1,9 +1,9 @@
 <template>
-  <router-view />
+  <a-config-provider :locale="zhCN">
+    <router-view></router-view>
+  </a-config-provider>
 </template>
-
-<style lang="scss">
-* {
-  box-sizing: border-box;
-}
-</style>
+<script setup>
+import zhCN from "ant-design-vue/es/locale/zh_CN";
+</script>
+<style lang="scss" scoped></style>

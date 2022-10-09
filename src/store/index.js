@@ -1,9 +1,16 @@
 import {createStore} from "vuex";
-
-export default createStore({
-  state: {},
+const store = createStore({
+  state: {name: "root", spinning: false, collapsed: false},
+  mutations: {
+    changeSpinning(state, spinning) {
+      state.spinning = spinning;
+    },
+    changeCollapsed(state, collapsed) {
+      state.collapsed = collapsed;
+    }
+  },
   getters: {},
-  mutations: {},
   actions: {},
   modules: {}
 });
+export default store;

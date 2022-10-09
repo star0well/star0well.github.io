@@ -1,15 +1,15 @@
 <template>
-  <canvas class="webgl" ref="canvasRef"></canvas>
+  <div class="canvas-box" ref="boxRef">
+    <canvas class="webgl" ref="canvasRef"></canvas>
+  </div>
 </template>
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {useThree} from "@/hooks/useThree";
-import {useRaycaster} from "@/hooks/useRaycaster";
+import {useRaycaster, useGetMeshCenter} from "@/hooks/useRaycaster";
 import {degToRad} from "three/src/math/MathUtils";
-
-const canvasRef = ref(null);
 const emits = defineEmits(["focus"]);
 const props = defineProps({
   rotation: {
@@ -23,13 +23,46 @@ const props = defineProps({
   rotationDir: {
     type: Number,
     default: 0
+  },
+  size: {
+    type: Object,
+    default: () => ({})
+  },
+  reset: {
+    type: Boolean,
+    default: false
   }
 });
+
 onMounted(() => {
+  initBox();
+
   init();
 });
+const canvasRef = ref(null);
+const boxRef = ref(null);
+const sizes = ref({});
+const offset = ref({});
+const initBox = () => {
+  const boxPostion = boxRef.value.getBoundingClientRect();
+  sizes.value.height = boxPostion.height;
+  sizes.value.width = boxPostion.width;
+
+  offset.value = {
+    offsetLeft: boxPostion.left,
+    offsetTop: boxPostion.top
+  };
+};
 const init = () => {
-  const {scene, camera, renderer, textureLoader, gltfLoader} = useThree(canvasRef.value);
+  const {scene, camera, renderer, textureLoader, gltfLoader, hanldeResize} = useThree(
+    canvasRef.value,
+    sizes.value,
+    boxRef.value
+  );
+  watch(
+    () => props.reset,
+    () => hanldeResize()
+  );
   const cubeTextureLoader = new THREE.CubeTextureLoader();
   const environmentMapTexture = cubeTextureLoader.load([
     "model/texture/px.jpg",
@@ -80,7 +113,7 @@ const init = () => {
     }
   );
 
-  const {raycaster, pointer} = useRaycaster();
+  const {raycaster, pointer} = useRaycaster(sizes.value, offset.value);
   const bakedTexture = textureLoader.load("model/GENXIN.jpg");
   bakedTexture.flipY = false;
   bakedTexture.encoding = THREE.sRGBEncoding;
@@ -103,47 +136,39 @@ const init = () => {
   colorTexture2.minFilter = THREE.NearestFilter;
   colorTexture2.magFilter = THREE.NearestFilter;
   // const bakedMaterial = new THREE.MeshBasicMaterial({map: bakedTexture});
-  let positionX;
-  console.log("positionX", positionX);
+
   const group = new THREE.Group();
-  gltfLoader.load(
-    "model/wind.glb",
-    (gltf) => {
-      for (const item of gltf.scene.children) {
-        if (item.name == "平面") {
-          item.material = new THREE.MeshBasicMaterial({color: 0x8d8a35});
-        }
-        if (item.name == "塔筒") {
-          item.material = tatongMaterial;
-          positionX = item.position;
-        }
-        if (item.name == "机舱") {
-          item.material = jiahcangMaterial;
-        }
-        if (item.name == "罩壳") {
-          item.material = new THREE.MeshBasicMaterial({color: 0xdab2a2});
-          rotateMesh = item;
-        }
-        if (item.name.indexOf("扇") != -1) {
-          console.log("SHANYE");
-          item.material = new THREE.MeshBasicMaterial({color: 0x0070b2});
-        }
+  gltfLoader.load("model/wind.glb", (gltf) => {
+    for (const item of gltf.scene.children) {
+      if (item.name == "平面") {
+        item.material = new THREE.MeshBasicMaterial({color: 0x8d8a35});
       }
-
-      group.name = "旋转";
-
-      scene.add(gltf.scene);
-    },
-    (progress) => {
-      console.log(progress, "progress");
+      if (item.name == "塔筒") {
+        item.material = tatongMaterial;
+      }
+      if (item.name == "机舱") {
+        item.material = jiahcangMaterial;
+      }
+      if (item.name == "罩壳") {
+        item.material = new THREE.MeshBasicMaterial({color: 0xdab2a2});
+        rotateMesh = item;
+      }
+      if (item.name.indexOf("扇") != -1) {
+        console.log("SHANYE");
+        item.material = new THREE.MeshBasicMaterial({color: 0x0070b2});
+      }
     }
-  );
+
+    group.name = "旋转";
+
+    scene.add(gltf.scene);
+  });
   camera.position.x = -94;
   camera.position.y = 45;
   camera.position.z = -55;
 
   scene.add(camera);
-  console.log("scene", scene);
+
   // Controls
   const controls = new OrbitControls(camera, canvasRef.value);
   controls.enableDamping = true;
@@ -159,17 +184,8 @@ const init = () => {
         INTERSECTED = intersects[0].object;
         INTERSECTED.currentMaterial = INTERSECTED?.material?.clone();
         INTERSECTED.material = portalLightMaterial;
-        //创建一个3D坐标
-        var vector = new THREE.Vector3();
-        //获取模型
-        vector = vector.setFromMatrixPosition(INTERSECTED.matrixWorld).project(camera);
-        var halfWidth = window.innerWidth / 2;
-        var halfHeight = window.innerHeight / 2;
-        var result = {
-          x: Math.round(vector.x * halfWidth + halfWidth),
-          y: Math.round(-vector.y * halfHeight + halfHeight)
-        };
-        //2D坐标
+
+        const result = useGetMeshCenter(INTERSECTED, camera, sizes.value);
         emits("focus", {...INTERSECTED, ...result});
       }
     } else {
@@ -222,4 +238,9 @@ const init = () => {
   tick();
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.canvas-box {
+  width: 100%;
+  height: 100%;
+}
+</style>
