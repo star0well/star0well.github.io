@@ -3,11 +3,11 @@
     <div class="nav">
       <div>风机运行情况监测</div>
       <div class="opration">
-        <input v-model.number="speed" placeholder="输入当前风速 m/s" />
-        <div @click="hanldeClick">测试</div>
-        <div @click="hanldeStop">停止</div>
-        <div @click="rotationLeft">机舱左转</div>
-        <div @click="rotationRight">机场右转</div>
+        <a-input v-model:value.number="speed" placeholder="输入当前风速 m/s" />
+        <a-button @click="hanldeClick">测试</a-button>
+        <a-button @click="hanldeStop">停止</a-button>
+        <a-button @click="rotationLeft">机舱左转</a-button>
+        <a-button @click="rotationRight">机场右转</a-button>
       </div>
     </div>
     <div
@@ -31,10 +31,12 @@
 <script setup>
 import ThreeDemo from "@/components/three/three-demo.vue";
 import {useStore} from "vuex";
-import {computed, ref} from "vue";
+import {computed, ref, getCurrentInstance} from "vue";
+import gsap from "gsap";
 const currentItem = ref({});
 const position = ref({});
-const speed = ref(null);
+const speed = ref(0);
+const instance = getCurrentInstance();
 const store = useStore();
 const reset = computed(() => store.state.collapsed);
 const hanldeShow = (e) => {
@@ -58,10 +60,12 @@ const hanldeStop = () => {
 
 const rotationDir = ref(0);
 const rotationLeft = () => {
-  rotationDir.value += 0.1;
+  const value = rotationDir.value + 0.2;
+  gsap.to(instance.setupState, {duration: 1, rotationDir: value});
 };
 const rotationRight = () => {
-  rotationDir.value -= 0.1;
+  const value = rotationDir.value - 0.2;
+  gsap.to(instance.setupState, {duration: 1, rotationDir: value});
 };
 </script>
 <style scoped lang="scss">
@@ -83,16 +87,10 @@ const rotationRight = () => {
 .nav {
   position: absolute;
   text-align: center;
-  width: 300px;
+  width: 500px;
 }
 .opration {
-  position: absolute;
-  top: 20px;
-  left: 50px;
   display: flex;
   color: #fff;
-  > div {
-    margin: 0 20px;
-  }
 }
 </style>

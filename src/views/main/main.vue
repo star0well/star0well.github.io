@@ -26,6 +26,11 @@ const menus = ref([
     name: "风电演示demo",
     type: 1,
     path: "/main/windDemo"
+  },
+  {
+    name: "萌宠三兄弟",
+    type: 1,
+    path: "/main/threeBrother"
   }
 ]);
 </script>

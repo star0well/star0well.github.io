@@ -10,6 +10,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import {useThree} from "@/hooks/useThree";
 import {useRaycaster, useGetMeshCenter} from "@/hooks/useRaycaster";
 import {degToRad} from "three/src/math/MathUtils";
+
 const emits = defineEmits(["focus"]);
 const props = defineProps({
   rotation: {
@@ -17,8 +18,8 @@ const props = defineProps({
     default: false
   },
   speed: {
-    type: Number,
-    default: 0
+    type: [Number, String],
+    default: ""
   },
   rotationDir: {
     type: Number,
@@ -138,31 +139,37 @@ const init = () => {
   // const bakedMaterial = new THREE.MeshBasicMaterial({map: bakedTexture});
 
   const group = new THREE.Group();
-  gltfLoader.load("model/wind.glb", (gltf) => {
-    for (const item of gltf.scene.children) {
-      if (item.name == "平面") {
-        item.material = new THREE.MeshBasicMaterial({color: 0x8d8a35});
+  gltfLoader.load(
+    "model/wind.glb",
+    (gltf) => {
+      for (const item of gltf.scene.children) {
+        if (item.name == "平面") {
+          item.material = new THREE.MeshBasicMaterial({color: 0x8d8a35});
+        }
+        if (item.name == "塔筒") {
+          item.material = tatongMaterial;
+        }
+        if (item.name == "机舱") {
+          item.material = jiahcangMaterial;
+        }
+        if (item.name == "罩壳") {
+          item.material = new THREE.MeshBasicMaterial({color: 0xdab2a2});
+          rotateMesh = item;
+        }
+        if (item.name.indexOf("扇") != -1) {
+          console.log("SHANYE");
+          item.material = new THREE.MeshBasicMaterial({color: 0x0070b2});
+        }
       }
-      if (item.name == "塔筒") {
-        item.material = tatongMaterial;
-      }
-      if (item.name == "机舱") {
-        item.material = jiahcangMaterial;
-      }
-      if (item.name == "罩壳") {
-        item.material = new THREE.MeshBasicMaterial({color: 0xdab2a2});
-        rotateMesh = item;
-      }
-      if (item.name.indexOf("扇") != -1) {
-        console.log("SHANYE");
-        item.material = new THREE.MeshBasicMaterial({color: 0x0070b2});
-      }
+
+      group.name = "旋转";
+
+      scene.add(gltf.scene);
+    },
+    (XHR) => {
+      console.log("XHR", XHR);
     }
-
-    group.name = "旋转";
-
-    scene.add(gltf.scene);
-  });
+  );
   camera.position.x = -94;
   camera.position.y = 45;
   camera.position.z = -55;
@@ -201,7 +208,6 @@ const init = () => {
   const rotateAction = () => {
     const pix = props.speed / 13;
     const lastSpeed = pix * 5;
-
     rotateMesh.rotateX(degToRad(lastSpeed));
     rotateMeshList.forEach((item) => {
       item.rotateX(degToRad(lastSpeed));
