@@ -97,5 +97,7 @@ defineExpose({
 .opration {
   display: flex;
   color: #fff;
+  width: 50%;
+  flex-wrap: wrap;
 }
 </style>

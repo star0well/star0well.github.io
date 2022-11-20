@@ -6,4 +6,8 @@
 <script setup>
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss">
+.ant-drawer-body {
+  padding: 0;
+}
+</style>
