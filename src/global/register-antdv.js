@@ -1,38 +1,10 @@
-import {
-  Input,
-  Button,
-  Form,
-  FormItem,
-  Spin,
-  ConfigProvider,
-  Layout,
-  LayoutContent,
-  LayoutSider,
-  LayoutHeader,
-  Menu,
-  MenuItem,
-  SubMenu
-} from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
-const components = [
-  Input,
-  Button,
-  Form,
-  FormItem,
-  Spin,
-  ConfigProvider,
-  Layout,
-  LayoutContent,
-  LayoutSider,
-  LayoutHeader,
-  Menu,
-  MenuItem,
-  SubMenu
-];
+import {Input, Button, Form, Spin, ConfigProvider, Layout, Menu} from "ant-design-vue";
+// import "ant-design-vue/dist/antd.css";
+const components = [Input, Button, Form, Spin, ConfigProvider, Layout, Menu];
 
 function registerElement(app) {
   for (const cpn of components) {
-    app.component(cpn.name, cpn);
+    app.use(cpn);
   }
 }
 
