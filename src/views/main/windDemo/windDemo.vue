@@ -23,7 +23,7 @@
       :rotation="rotation"
       @onClick="handleDetail"
       :speed="speed"
-      :rotationDir="rotationDir"
+      :rotationDir="rotationDir.value"
       :reset="reset"
     ></ThreeDemo>
   </div>
@@ -31,12 +31,12 @@
 <script setup>
 import ThreeDemo from "@/components/three/three-demo.vue";
 import {useStore} from "vuex";
-import {computed, ref, getCurrentInstance} from "vue";
+import {computed, reactive, ref} from "vue";
 import gsap from "gsap";
 const currentItem = ref({});
 const position = ref({});
 const speed = ref(0);
-const instance = getCurrentInstance();
+
 const store = useStore();
 const reset = computed(() => store.state.collapsed);
 const hanldeShow = (e) => {
@@ -58,15 +58,20 @@ const hanldeStop = () => {
   rotation.value = false;
 };
 
-const rotationDir = ref(0);
+const rotationDir = reactive({
+  value: 0
+});
 const rotationLeft = () => {
   const value = rotationDir.value + 0.2;
-  gsap.to(instance.setupState, {duration: 1, rotationDir: value});
+  gsap.to(rotationDir, {duration: 1, value: value});
 };
 const rotationRight = () => {
   const value = rotationDir.value - 0.2;
-  gsap.to(instance.setupState, {duration: 1, rotationDir: value});
+  gsap.to(rotationDir, {duration: 1, value: value});
 };
+defineExpose({
+  rotationDir
+});
 </script>
 <style scoped lang="scss">
 .windDemo {
